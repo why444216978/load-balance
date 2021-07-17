@@ -1,6 +1,9 @@
 package load_balance
 
-import "sync/atomic"
+import (
+	"sort"
+	"sync/atomic"
+)
 
 type roundRobin struct {
 	nodeList []Node //node weight list
@@ -19,6 +22,10 @@ func NewRoundRobin() LoadBanlance {
 }
 
 func (r *roundRobin) InitNodeList(nodeList []Node) (err error) {
+	sort.Slice(nodeList, func(i, j int) bool {
+		return nodeList[i].Weight > nodeList[j].Weight
+	})
+
 	r.nodeList = nodeList
 	r.nodeCount = len(r.nodeList)
 	if r.nodeCount <= 0 {
