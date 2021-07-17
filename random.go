@@ -1,14 +1,8 @@
 package load_balance
 
 import (
-	"errors"
 	"math/rand"
 	"sort"
-)
-
-var (
-	ErrNodeEmpty   = errors.New("node is empty")
-	ErrTotalWeight = errors.New("totalWeight = 0")
 )
 
 type random struct {
