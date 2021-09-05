@@ -1,5 +1,14 @@
 package load_balance
 
+import "errors"
+
+type balanceType string
+
+const (
+	balanceTypeRandom     balanceType = "ramdom"
+	balanceTypeRoundRobin balanceType = "round_robin"
+)
+
 type Node struct {
 	Node   string
 	Weight int
@@ -18,4 +27,15 @@ type LoadBanlance interface {
 	GetNodeAddress() string
 
 	GetStatistics() map[string]int
+}
+
+func New(typ balanceType) (LoadBanlance, error) {
+	switch typ {
+	case balanceTypeRandom:
+		return NewRandom(), nil
+	case balanceTypeRoundRobin:
+		return NewRoundRobin(), nil
+	}
+
+	return nil, errors.New("type error")
 }
