@@ -2,11 +2,11 @@ package load_balance
 
 import "errors"
 
-type balanceType string
+type BalanceType string
 
 const (
-	balanceTypeRandom     balanceType = "ramdom"
-	balanceTypeRoundRobin balanceType = "round_robin"
+	balanceTypeRandom     BalanceType = "ramdom"
+	balanceTypeRoundRobin BalanceType = "round_robin"
 )
 
 type Node struct {
@@ -29,7 +29,7 @@ type LoadBanlance interface {
 	GetStatistics() map[string]int
 }
 
-func New(typ balanceType) (LoadBanlance, error) {
+func New(typ BalanceType) (LoadBanlance, error) {
 	switch typ {
 	case balanceTypeRandom:
 		return NewRandom(), nil
