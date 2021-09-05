@@ -2,19 +2,17 @@ package load_balance
 
 import (
 	"sort"
+	"sync"
 	"sync/atomic"
 )
 
 type roundRobin struct {
-	nodeList []Node //node weight list
-
-	nodeCount int //node count
-
-	maxWeight int //max weight
-
-	minWeight int //min weight
-
+	nodeList   []Node         //node weight list
+	nodeCount  int            //node count
+	maxWeight  int            //max weight
+	minWeight  int            //min weight
 	statistics map[string]int //load balance statistics
+	lock       sync.RWMutex
 }
 
 func NewRoundRobin() LoadBanlance {
@@ -40,6 +38,7 @@ func (r *roundRobin) InitNodeList(nodeList []Node) (err error) {
 	for _, v := range r.nodeList {
 		r.maxWeight = r.maxInt(r.maxWeight, v.Weight)
 		r.minWeight = r.minInt(r.minWeight, v.Weight)
+		r.statistics[v.Node] = 0
 	}
 
 	return
@@ -47,15 +46,10 @@ func (r *roundRobin) InitNodeList(nodeList []Node) (err error) {
 
 func (r *roundRobin) GetNodeAddress() string {
 	idx := r.getNodeIndex()
-	address := r.nodeList[idx].Node
+	node := r.nodeList[idx].Node
+	r.addCall(node)
 
-	if _, ok := r.statistics[address]; !ok {
-		r.statistics[address] = 1
-		return address
-	}
-
-	r.statistics[address] = r.statistics[address] + 1
-	return address
+	return node
 }
 
 func (r *roundRobin) getNodeIndex() int {
@@ -82,7 +76,16 @@ func (r *roundRobin) getNodeIndex() int {
 }
 
 func (r *roundRobin) GetStatistics() map[string]int {
-	return r.statistics
+	r.lock.RLock()
+	defer r.lock.RUnlock()
+	res := r.statistics
+	return res
+}
+
+func (r *roundRobin) addCall(node string) {
+	r.lock.Lock()
+	defer r.lock.Unlock()
+	r.statistics[node] = r.statistics[node] + 1
 }
 
 func (r *roundRobin) maxInt(a, b int) int {

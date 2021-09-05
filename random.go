@@ -3,22 +3,18 @@ package load_balance
 import (
 	"math/rand"
 	"sort"
+	"sync"
 )
 
 type random struct {
-	nodeList []Node // node weight list
-
-	nodeCount int //node count
-
-	offsetList []nodeOffset //node offset
-
-	totalWeight int //total weight
-
-	forCount int //search offset count
-
-	sameWeight bool //all node weight is same
-
-	statistics map[string]int //load balance statistics
+	nodeList    []Node         // node weight list
+	nodeCount   int            //node count
+	offsetList  []nodeOffset   //node offset
+	totalWeight int            //total weight
+	forCount    int            //search offset count
+	sameWeight  bool           //all node weight is same
+	statistics  map[string]int //load balance statistics
+	lock        sync.RWMutex
 }
 
 // New new load balance object
@@ -67,6 +63,8 @@ func (r *random) InitNodeList(nodeList []Node) (err error) {
 
 		r.totalWeight = r.totalWeight + v.Weight
 		r.offsetList = append(r.offsetList, tmp)
+
+		r.statistics[v.Node] = 0
 	}
 
 	if r.totalWeight < 0 {
@@ -103,16 +101,22 @@ func (r *random) GetNodeAddress() string {
 		}
 	}
 
-	if _, ok := r.statistics[node]; !ok {
-		r.statistics[node] = 1
-		return node
-	}
+	r.addCall(node)
 
-	r.statistics[node] = r.statistics[node] + 1
 	return node
 }
 
 // GetStatistics get load balance statistic
 func (r *random) GetStatistics() map[string]int {
-	return r.statistics
+	r.lock.RLock()
+	defer r.lock.RUnlock()
+	res := r.statistics
+	return res
+}
+
+// addCall
+func (r *random) addCall(node string) {
+	r.lock.Lock()
+	defer r.lock.Unlock()
+	r.statistics[node] = r.statistics[node] + 1
 }
