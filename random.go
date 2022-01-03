@@ -91,7 +91,7 @@ func (r *random) GetNodeAddress() string {
 		idx := rand.Intn(r.nodeCount)
 		node = r.nodeList[idx].Node
 	} else {
-		idx := rand.Intn(r.totalWeight)
+		idx := rand.Intn(r.totalWeight + 1)
 		for _, v := range r.offsetList {
 			r.forCount = r.forCount + 1
 			if idx >= v.OffsetStart && idx <= v.OffsetEnd {
