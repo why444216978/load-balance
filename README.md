@@ -5,12 +5,6 @@
 
 # load-balance
 
-基于 go 开发的负载均衡组件
+基于 Go 开发的负载均衡组件
 <br>
-有疑问随时联系本人
-<br>
-QQ群：909211071
-<br>
-个人QQ：444216978
-<br>
-微信：AbleYu_
+目前本代码库已不再新增功能，最新代码已迁移至 <a href="https://github.com/why444216978/gin-api/tree/master/library/selector">selector</a>
